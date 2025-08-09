@@ -1,0 +1,53 @@
+** Testbench for Level-shifter Up
+**
+**Parameters
+.PARAM PAR_VDDH=5
+.PARAM PAR_VDD=3.3
+.PARAM PAR_CLOAD=50f
+.PARAM PAR_SLEW=100p
+.PARAM PAR_PERIOD=10n
+.PARAM PAR_TSTOP=PAR_PERIOD
+
+** Model files 
+.include /home/usrvnc/share/pdk/gf180mcuD/libs.tech/ngspice/design.ngspice
+.lib /home/usrvnc/share/pdk/gf180mcuD/libs.tech/ngspice/sm141064.ngspice typical
+
+** Level shifter design
+*.INCLUDE gf180mcu_osu_sc_gp9t3v3_lshifup.spice
+.INCLUDE /home/usrvnc/.xschem/simulations/gf180mcu_osu_sc_gp9t3v3_lshifup.spice
+
+
+** Instantiate LS
+XLSup A Y VDD5 VDD3v3 VSS gf180mcu_osu_sc_gp9t3v3_lshifup 
+
+**Load
+Cl	Y	VSS	PAR_CLOAD	
+
+**Stimulus
+Vdd5v	VDD5	VSS	PAR_VDDH
+Vdd3v	VDD3v3	VSS	PAR_VDD
+**Vin	A	VSS	0 PULSE(0 3.3 1n 1p 1p 5n 10n)
+Vin	A	VSS	0 PULSE(0 PAR_VDD '0.25*PAR_PERIOD' PAR_SLEW PAR_SLEW 'PAR_PERIOD*0.5' PAR_PERIOD)
+VGND	VSS	0	0
+
+**Keeping the measures outside of .control related to issue of
+** passing the parameter
+** MEASUREMENTS **
+** Rise/Fall 10-90%
+.MEASURE TRAN tr1090 TRIG v(Y) VAL='0.1*PAR_VDDH' RISE=1 TARG v(Y) VAL='0.9*PAR_VDDH' RISE=1 
+.MEASURE TRAN tf9010 TRIG v(Y) VAL='0.9*PAR_VDDH' FALL=1 TARG v(Y) VAL='0.1*PAR_VDDH' FALL=1 
+** Delay Rise Fall
+.MEASURE TRAN tdrise TRIG v(A)  VAL='0.5*PAR_VDD' RISE=1 TARG v(Y) VAL='0.5*PAR_VDDH' RISE=1 
+.MEASURE TRAN tdfall TRIG v(A)  VAL='0.5*PAR_VDD' FALL=1 TARG v(Y) VAL='0.5*PAR_VDDH' FALL=1 
+**
+.MEASURE TRAN Iavg AVG vdd5v#branch FROM=0 TO=PAR_TSTOP
+
+.CONTROL
+save all
+op 
+tran 1p 10n
+plot v(a) v(y) v(xlsup.yn) v(xlsup.y1)
+
+.ENDC
+
+.END
