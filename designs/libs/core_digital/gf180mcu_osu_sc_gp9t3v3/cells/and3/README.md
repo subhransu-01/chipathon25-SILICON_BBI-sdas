@@ -29,7 +29,7 @@ Designer: Subhransu Das (AND3_2X)
 | **tdel-fall b** (50-50%) | -11.89n | -11.88n | -11.79n |
 | **tdel-rise c** (50-50%) | 0.19n | 0.20n | 0.32n |
 | **tdel-fall c** (50-50%) | -43.89n | -43.88n | -43.79n |
-| **Iavg(Y)** | 1.81A | 1.83A | 1.71A |
+| **Iavg(Y)** | 1.81uA | 1.83uA | 1.71uA |
 
 **NOTE** 
 1) Input slew-rate is 1 ps   
